@@ -25,7 +25,7 @@ const settings: CompilerOptions = {
   allowNonTsExtensions: true,
 };
 
-export const CodeEditor = ({ namespace, code }) => {
+export const CodeEditor = ({ namespace, code }: { namespace: string, code: string }) => {
   return (
     <Editor
       defaultPath={namespace}
@@ -37,7 +37,7 @@ export const CodeEditor = ({ namespace, code }) => {
           settings,
         );
 
-        if (monaco.editor.getModel(namespace) === null) {
+        if (monaco.editor.getModel(monaco.Uri.parse(namespace)) === null) {
           const model = monaco.editor.createModel(
             code,
             "typescript",
