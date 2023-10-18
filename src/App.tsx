@@ -9,8 +9,10 @@ export const USER_CODE_PATH = 'file:///user.ts';
 // https://github.com/microsoft/TypeScript-Website/blob/652934679e6d0a46f75bb33677bb81f9eee17ed0/packages/sandbox/src/compilerOptions.ts#L10
 const settings: CompilerOptions = {
   strict: true,
+  allowJs: true,
+  checkJs: true,
   noUncheckedIndexedAccess: true,
-  target: monacoType.languages.typescript.ScriptTarget.ES2017,
+  target: monacoType.languages.typescript.ScriptTarget.ESNext,
   lib: ['es2015', 'dom', 'dom.iterable', 'esnext'],
   declaration: true,
   experimentalDecorators: true,
@@ -32,27 +34,26 @@ function App() {
       onMount={(editor, monaco) => {
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions(settings);
 
-        // this works
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(
-          'type Ligma = "balls"',
-        );
-
         const ata = setupTypeAcquisition({
           projectName: "test-ts-ata",
           typescript: ts,
           delegate: {
-            receivedFile: (code: string, path: string) => {
-
-              if (path.endsWith(".d.ts")) {
-
-                const fileUrl = `file://${path}`;
-                console.log("ATA received file", fileUrl);
+            receivedFile: (code: string, _path: string) => {
+              const path = `file://${_path}`;
+              if (_path.endsWith(".d.ts")) {
                 monaco.languages.typescript.typescriptDefaults.addExtraLib(
                   code,
+                  path
                 );
-              }
 
-              // monaco.editor.createModel("", "typescript");
+                // const uri = monaco.Uri.file(_path);
+                // if (monaco.editor.getModel(uri) === null) {
+                //   monaco.editor.createModel(code, "typescript", uri)
+                // }
+                console.log(`[ATA] Adding ${path} to runtime`, {
+                  code
+                });
+              }
             },
           },
         });
@@ -61,7 +62,7 @@ function App() {
           ata(editor.getValue());
         });
       }}
-      defaultValue={`import { isEven } from "is-even"`}
+      defaultValue={`import isGif from "is-gif"`}
     />
   )
 }
