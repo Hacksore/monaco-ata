@@ -25,6 +25,7 @@ const settings: CompilerOptions = {
   allowNonTsExtensions: true,
 };
 
+// THIS IS 💯 redprodcution CODE
 export const CodeEditor = ({ namespace, code }: { namespace: string, code: string }) => {
   return (
     <Editor
