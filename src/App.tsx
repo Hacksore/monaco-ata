@@ -6,6 +6,7 @@ import * as monacoType from 'monaco-editor';
 type CompilerOptions = import("monaco-editor").languages.typescript.CompilerOptions
 export const USER_CODE_PATH = 'file:///user.ts';
 
+const CODE = `import isGif from "is-gif"`;
 // https://github.com/microsoft/TypeScript-Website/blob/652934679e6d0a46f75bb33677bb81f9eee17ed0/packages/sandbox/src/compilerOptions.ts#L10
 const settings: CompilerOptions = {
   strict: true,
@@ -34,6 +35,12 @@ function App() {
       onMount={(editor, monaco) => {
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions(settings);
 
+        const model = monaco.editor.createModel(
+          CODE,
+          "typescript",
+          monaco.Uri.parse(USER_CODE_PATH)
+        );
+
         const ata = setupTypeAcquisition({
           projectName: "test-ts-ata",
           typescript: ts,
@@ -60,9 +67,11 @@ function App() {
 
         editor.getModel()?.onDidChangeContent(() => {
           ata(editor.getValue());
+
+          editor.setModel(model);
         });
       }}
-      defaultValue={`import isGif from "is-gif"`}
+      defaultValue={CODE}
     />
   )
 }
