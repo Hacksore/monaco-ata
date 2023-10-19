@@ -1,6 +1,4 @@
 import Editor from "@monaco-editor/react";
-import { setupTypeAcquisition } from "@typescript/ata";
-import ts from "typescript";
 import * as monacoType from "monaco-editor";
 
 type CompilerOptions =
@@ -26,7 +24,13 @@ const settings: CompilerOptions = {
 };
 
 // THIS IS 💯 redprodcution CODE
-export const CodeEditor = ({ namespace, code }: { namespace: string, code: string }) => {
+export const CodeEditor = ({
+  namespace,
+  code,
+}: {
+  namespace: string;
+  code: string;
+}) => {
   return (
     <Editor
       defaultPath={namespace}
@@ -35,14 +39,14 @@ export const CodeEditor = ({ namespace, code }: { namespace: string, code: strin
       theme="vs-dark"
       onMount={async (editor, monaco) => {
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
-          settings,
+          settings
         );
 
         if (monaco.editor.getModel(monaco.Uri.parse(namespace)) === null) {
           const model = monaco.editor.createModel(
             code,
             "typescript",
-            monaco.Uri.parse(namespace),
+            monaco.Uri.parse(namespace)
           );
 
           editor.setModel(model);
@@ -55,6 +59,19 @@ export const CodeEditor = ({ namespace, code }: { namespace: string, code: strin
         editor.getModel()?.onDidChangeContent(async () => {
           const mm = monaco.editor.getModel(monaco.Uri.parse(namespace));
           if (!mm) return null;
+
+          const actualCode = mm
+            .getValue()
+            .split("\n")
+            .filter((c) => !c.startsWith("import"))
+            .join("\n");
+          if (actualCode) {
+            console.log({ actualCode });
+            monaco.languages.typescript.typescriptDefaults.addExtraLib(
+              actualCode,
+              "file:///node_modules/@types/user.d.ts"
+            );
+          }
 
           const testErrors = await Promise.all([
             tsWorker.getSemanticDiagnostics(namespace),
