@@ -60,6 +60,19 @@ export const CodeEditor = ({
           const mm = monaco.editor.getModel(monaco.Uri.parse(namespace));
           if (!mm) return null;
 
+          const actualCode = mm
+            .getValue()
+            .split("\n")
+            .filter((c) => !c.startsWith("import"))
+            .join("\n");
+          if (actualCode) {
+            console.log({ actualCode });
+            monaco.languages.typescript.typescriptDefaults.addExtraLib(
+              actualCode,
+              "file:///node_modules/@types/user.d.ts"
+            );
+          }
+
           const testErrors = await Promise.all([
             tsWorker.getSemanticDiagnostics(namespace),
             tsWorker.getSyntacticDiagnostics(namespace),
